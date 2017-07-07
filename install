@@ -1,0 +1,87 @@
+#!/bin/bash
+#本文件为安装文件
+setup_content=~/bin/qcd
+history_dir=$setup_content/history_dir
+
+setup(){
+	#检查是否已经安装过啦
+	if [ -r $history_dir ]
+	then
+		echo "You have installed, overwrite it(Y/y) or exit(Q/q or N/n)"
+		while read choice
+		do
+			if [ "$choice" = "Y" -o "$choice" = "y" ]
+			then
+				rm -f $setup_content/history_dir
+				break
+			fi
+			
+			if [ "$choice" = "Q" -o "$choice" = "q" ]
+			then
+				echo "Nothing to do"
+				exit 1
+			fi
+			
+			if [ "$choice" = "N" -o "$choice" = "n" ]
+			then
+				cp -f ./qcde.sh $setup_content/
+				cp -f ./qcd.sh $prof_content/
+				echo "install qcd OK, but do not overwrite it!"
+				echo "version is 1.00"
+				exit 1
+			fi
+			echo "You have installed, overwrite it(Y/y) or exit(Q/q or N/n)"
+		done
+	fi
+	
+	mkdir -p $setup_content
+	cp -f ./qcde.sh $setup_content/
+	touch $setup_content/history_dir
+	cp -f ./qcd.sh $setup_content/
+	[ ! "`sed -n '/qcd/p' ~/.bashrc`" ] && echo "alias qcd=\". ~/bin/qcd/qcd.sh\"" >> ~/.bashrc
+}
+
+usage(){
+	echo "<install> install qcb on your computer!"
+	echo "<install del> remove qcb form your computer!"
+	exit 1
+}
+delete(){
+	echo "remove Qcd form your computer!"
+	if [ -d $setup_content ]
+	then
+		rm -rf $setup_content
+		sed -i '/qcd/d' ~/.bashrc
+	else
+		echo "Qcd is not exist!"
+		exit 1
+	fi
+}
+
+echo "Qcd install Software"
+echo "reDesigned by mazhao141 2017"
+
+#这里是安装逻辑
+if [ $# -eq 0 ]
+then
+	setup
+	echo "install qcd OK!"
+	echo "version is 1.00"
+	echo "Please relogin to make Qcd effective!"
+	exit 1
+fi
+#这里是默认的用法逻辑当参数列表大于1时使用
+if [ $# -gt 1 ]
+then
+	usage
+fi
+#这里是删除逻辑
+case $1 in
+del)
+	delete
+	echo "have deleted qcd OK!"
+	;;
+*)
+	usage
+	;;
+esac
